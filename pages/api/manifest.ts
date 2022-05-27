@@ -12,7 +12,12 @@ const capitalize = (value: string) =>
 const dropFileExtension = (filename: string) => path.parse(filename).name;
 
 const inferWebhooks = async (baseURL: string) => {
-  const entries = await fg(["*.ts"], { cwd: "pages/api/webhooks" });
+  let entries;
+  if (process.env.NODE_ENV === "production") {
+    entries = await fg(["*.js"], { cwd: `${__dirname}/webhooks` });
+  } else {
+    entries = await fg(["*.ts"], { cwd: `pages/api/webhooks` });
+  }
 
   return entries.map(dropFileExtension).map((name: string) => {
     const camelcaseName = name.split("-").map(capitalize).join("");
